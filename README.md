@@ -17,7 +17,7 @@ The bot is intended to be run from [heroku](https://heroku.com) on a free tier. 
 
 1. Create a new bot via the @BotFather bot in Telegram. Just type `/newbot` command and follow the instructions
 2. Install [Git](https://git-scm.com/downloads) and [Heroku CLI](https://devcenter.heroku.com/articles/getting-started-with-python#set-up)
-3. Clone this repo locally and go to the folder. Just type in terminal (or git bash) `git clone && cd` 
+3. Clone this repo locally and go to the folder. Just type in terminal (or git bash) `git clone https://github.com/pavlohrab/RemNote-bot && cd RemNote-bot` 
 4. Then initialize an empty repo `git init`
 5. Create a Heroku app.
    1. `heroku login` <- login to the Heroku CLI. If you don't have an account on Heroku, create one.
