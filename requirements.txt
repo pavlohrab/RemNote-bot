@@ -1,0 +1,3 @@
+python-telegram-bot==12.7
+bs4
+requests
