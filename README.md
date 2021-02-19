@@ -1,5 +1,11 @@
 # Background
 
+![Visitor count](https://shields-io-visitor-counter.herokuapp.com/badge?page=pavlohrab.RemNote-bot&style=for-the-badge)
+![GitHub](https://img.shields.io/github/license/pavlohrab/RemNote-bot?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues/pavlohrab/RemNote-bot?style=for-the-badge)
+![GitHub Repo stars](https://img.shields.io/github/stars/pavlohrab/RemNote-bot?style=for-the-badge)
+![GitHub contributors](https://img.shields.io/github/contributors/pavlohrab/RemNote-bot?style=for-the-badge)
+
 This is a telegram bot, that sends text notes to the daily documents (or in a separate folder, just tagging date) in [remnote](https://www.remnote.io/). If the text contains a link, then this link will be extracted and used as a source for rem. Any additional notes, following the created rem, are possible.
 
 The bot is intended to be run from [heroku](https://heroku.com) on a free tier. The installation guide below describes how to get the bot running.
