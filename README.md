@@ -15,6 +15,9 @@ The bot is intended to be run from [heroku](https://heroku.com) on a free tier. 
 
 # Installation
 
+## Individual version of a bot
+This version is prefered, as you would have all the control behind your data.
+
 1. Create a new bot via the @BotFather bot in Telegram. Just type `/newbot` command and follow the instructions
 2. Install [Git](https://git-scm.com/downloads) and [Heroku CLI](https://devcenter.heroku.com/articles/getting-started-with-python#set-up)
 3. Clone this repo locally and go to the folder. Just type in terminal (or git bash) `git clone && cd` 
@@ -34,6 +37,13 @@ The bot is intended to be run from [heroku](https://heroku.com) on a free tier. 
 10. Type `git push heroku master`
 11. (optional) Go to the @BotFather bot in a Telegram. Go to the `/mybots`  -> `<your-bot-name>` -> `Edit Bot` -> `Edit Command` and type `stop - stop adding notes`. Then in the same `Edit Bot` menu go to the `Edit Botpic` and upload the picture you like. I used [this](https://drive.google.com/file/d/1_6PxFeHHWRDj26UIpuwcUsKam_FN6XSv/view) official one. All the official materials are available [here](https://www.remnote.io/a/remnote-media-kit/5fd4ff11c3785c0045946db7)
 12. Congrats, all is done!
+
+## Use general version of a bot
+The general version of a bot depends on postgresql database on heroku. After the start you should just provide API key and UserID as a messages to a bot. For how to get API key and User Id please see above guide (step 6 and 7.3). There is a limit of users in one telegram bot (10000 in a free Heroku tier), therefore below is a list of maintained bots 
+
+List of telegram bots:
+1. @RemNoteBot - not full. Code is available on `remnote_postgres_1` branch of this repo
+
 
 # Usage
 
