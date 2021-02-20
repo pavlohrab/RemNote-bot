@@ -128,7 +128,6 @@ def user_id_set(update, context):
     DATABASE_URL = os.environ['DATABASE_URL']
     engine = create_engine(DATABASE_URL)
     df = pd.read_sql_query('select chatid, api, userid from "ids"',con=engine)
-    engine.dispose()
     userid =  update.message.text
     context.bot.send_message(chat_id=update.effective_chat.id, text = "Fantastic!")
     columns = list(df.columns) 
@@ -139,6 +138,7 @@ def user_id_set(update, context):
                 columns[2]:[userid]
                 }))
     df.to_sql('ids', engine, if_exists='replace', index=False)
+    engine.dispose()
     context.bot.send_message(chat_id=update.effective_chat.id, text = "All set up!")
     return FIRST
 ############## Saving to RemNote #####################
