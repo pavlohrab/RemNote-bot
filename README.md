@@ -1,5 +1,11 @@
 # Background
 
+![Visitor count](https://shields-io-visitor-counter.herokuapp.com/badge?page=pavlohrab.RemNote-bot&style=for-the-badge)
+![GitHub](https://img.shields.io/github/license/pavlohrab/RemNote-bot?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues/pavlohrab/RemNote-bot?style=for-the-badge)
+![GitHub Repo stars](https://img.shields.io/github/stars/pavlohrab/RemNote-bot?style=for-the-badge)
+![GitHub contributors](https://img.shields.io/github/contributors/pavlohrab/RemNote-bot?style=for-the-badge)
+
 This is a telegram bot, that sends text notes to the daily documents (or in a separate folder, just tagging date) in [remnote](https://www.remnote.io/). If the text contains a link, then this link will be extracted and used as a source for rem. Any additional notes, following the created rem, are possible.
 
 The bot is intended to be run from [heroku](https://heroku.com) on a free tier. The installation guide below describes how to get the bot running.
@@ -7,7 +13,7 @@ The bot is intended to be run from [heroku](https://heroku.com) on a free tier. 
 # Features
 1. **Send text notes** directly to the daily page, or in a separate folder, still referencing today's page
 2. **Share websites** to the remnote (the same as text notes). If a link is found within the text, then it becomes a source, and page title becomes the rem text
-3. **Add** any subsequent **notes to the created** rem (tight after the creatin). All the notes will put inside created rem. 
+3. **Add** any subsequent **notes to the created** rem (right after the creation). All the notes will put inside created rem. 
 4. **Tags** are only supported if they are one word ( underscore delimiter can be also used). In this case they can be added via ##example_tag while making a note.
 5. **References** are encapsulated in [[example reference]]. They can consist of several words. 
 
@@ -20,7 +26,7 @@ This version is prefered, as you would have all the control behind your data.
 
 1. Create a new bot via the @BotFather bot in Telegram. Just type `/newbot` command and follow the instructions
 2. Install [Git](https://git-scm.com/downloads) and [Heroku CLI](https://devcenter.heroku.com/articles/getting-started-with-python#set-up)
-3. Clone this repo locally and go to the folder. Just type in terminal (or git bash) `git clone && cd` 
+3. Clone this repo locally and go to the folder. Just type in terminal (or git bash) `git clone https://github.com/pavlohrab/RemNote-bot && cd RemNote-bot` 
 4. Then initialize an empty repo `git init`
 5. Create a Heroku app.
    1. `heroku login` <- login to the Heroku CLI. If you don't have an account on Heroku, create one.
