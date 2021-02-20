@@ -8,6 +8,7 @@ from datetime import datetime as dt
 import datetime
 from sqlalchemy import create_engine
 import pandas as pd
+import psycopg2
 
 
 # USER defined variables
@@ -23,17 +24,14 @@ NOTE_ID = None
 PARENT = None
 NOTE = None
 MEDIA_ID = None
-FIRST, SECOND = range(2)
+FIRST, SECOND, THIRD, FOURTH = range(4)
+
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-
-DATABASE_URL = os.environ['DATABASE_URL']
-engine = create_engine(DATABASE_URL)
-df = pd.read_sql_query('select chatid, api, userid from "ids"',con=engine)
 
 # Get the todays date!
 def suffix(d):
@@ -84,7 +82,29 @@ def get_daily_rem():
     if res.json()["found"] == True:
         return res.json()["_id"]
     else:
-        return None
+        url_get_by_name = "https://api.remnote.io/api/v0/get_by_name"
+        search={ "apiKey": REMNOT_API, 
+                "userId":USER_ID, 
+                "name":'Daily Documents'} 
+        res = requests.post(url_get_by_name, data=search) 
+        url="https://api.remnote.io/api/v0/create" 
+        par={ "apiKey":REMNOT_API, 
+                    "userId":USER_ID, 
+                    "text": "Temporary" + " #[[" +  str(today) + "]]", 
+                    "positionAmongstSiblings" : 0, 
+                    "isDocument" : True, 
+                    "parentId":res.json()["_id"]
+                    } 
+        created_rem = requests.post(url, data=par) 
+        delete = { "apiKey": REMNOT_API, 
+                        "userId":USER_ID, 
+                        "remId" : created_rem.json()['remId'] 
+                        } 
+        delete_url = "https://api.remnote.io/api/v0/delete" 
+        requests.post(delete_url, data=delete) 
+        search['name'] = datetime.date.today().strftime('%d/%m/%Y') 
+        res = requests.post(url_get_by_name, data=search)
+        return res.json()["_id"]
 
 ############## Save Data to SQL ####################
 def account_set_up(update, context):
@@ -104,7 +124,11 @@ def api_set(update, context):
     return FOURTH
 
 def user_id_set(update, context):
-    global userid, api, chat_id, df, engine
+    global userid, api, chat_id, df, DATABASE_URL
+    DATABASE_URL = os.environ['DATABASE_URL']
+    engine = create_engine(DATABASE_URL)
+    df = pd.read_sql_query('select chatid, api, userid from "ids"',con=engine)
+    engine.dispose()
     userid =  update.message.text
     context.bot.send_message(chat_id=update.effective_chat.id, text = "Fantastic!")
     columns = list(df.columns) 
@@ -114,7 +138,6 @@ def user_id_set(update, context):
                 columns[1]:[api],
                 columns[2]:[userid]
                 }))
-    context.bot.send_message(chat_id=update.effective_chat.id, text = str(df))
     df.to_sql('ids', engine, if_exists='replace', index=False)
     context.bot.send_message(chat_id=update.effective_chat.id, text = "All set up!")
     return FIRST
@@ -139,15 +162,16 @@ def start_doc(update, context):
 
 def start(update, context):
     """Echo the user message."""
-    global LINK, DOCUMENT, NOTE, PARENT, URL, df, REMNOT_API, USER_ID
+    global LINK, DOCUMENT, NOTE, PARENT, URL, df, REMNOT_API, USER_ID, DATABASE_URL
+    DATABASE_URL = os.environ['DATABASE_URL']
+    engine = create_engine(DATABASE_URL)
+    df = pd.read_sql_query('select chatid, api, userid from "ids"',con=engine)
+    engine.dispose()
     columns = list(df.columns)
-    context.bot.send_message(chat_id=update.effective_chat.id, text = str(update.effective_chat.id))
-    context.bot.send_message(chat_id=update.effective_chat.id, text = list(df[columns[0]]))
-    if str(update.effective_chat.id )in list(df[columns[0]]):
-        REMNOT_API = str(list(df[df[columns[0]] ==str(update.effective_chat.id) ][columns[1]])[0])
-        USER_ID = str(list(df[df[columns[0]] ==str(update.effective_chat.id) ][columns[2]])[0])
-        context.bot.send_message(chat_id=update.effective_chat.id, text = str(REMNOT_API))
-        context.bot.send_message(chat_id=update.effective_chat.id, text = str(USER_ID))
+    df = df.astype({columns[0]: int, columns[1]: str, columns[2]:str})
+    if int(update.effective_chat.id ) in list(df[columns[0]]):
+        REMNOT_API = str(list(df[df[columns[0]] ==int(update.effective_chat.id) ][columns[1]])[0])
+        USER_ID = str(list(df[df[columns[0]] ==int(update.effective_chat.id) ][columns[2]])[0])
     else:
         context.bot.send_message(chat_id=update.effective_chat.id, text = "Please make an intial setup first with /start command")
         return ConversationHandler.END
