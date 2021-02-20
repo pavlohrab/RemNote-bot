@@ -6,13 +6,15 @@ from telegram.ext import *
 import os, json, requests, re
 from datetime import datetime as dt
 import datetime
+from sqlalchemy import create_engine
+import pandas as pd
 
 
 # USER defined variables
-TOKEN = ''
+TOKEN = '1542634306:AAH5hl7B-FkMlCNNsouZw1ve1H5kSt1VKYE'
 REMNOT_API= ''
 USER_ID = ''
-HEROKU_NAME = ''
+HEROKU_NAME = 'https://limitless-peak-12878.herokuapp.com/'
 HOME_DIR = 'Saved Telegram'
 
 # Some global variables
@@ -29,6 +31,10 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
+DATABASE_URL = os.environ['DATABASE_URL']
+engine = create_engine(DATABASE_URL)
+df = pd.read_sql_query('select chatid, api, userid from "ids"',con=engine)
+
 # Get the todays date!
 def suffix(d):
     return 'th' if 11<=d<=13 else {1:'st',2:'nd',3:'rd'}.get(d%10, 'th')
@@ -38,7 +44,7 @@ def custom_strftime(format, t):
 
 today = custom_strftime('%B {S}, %Y', dt.now())
 
-# Send notes 
+################### Send Notes #############################
 def send_note(text, parent=None, link=False, doc=None):
     global REMNOT_API, USER_ID, DOCUMENT, MEDIA_ID, today, URL
     url_post="https://api.remnote.io/api/v0/create"
@@ -80,7 +86,39 @@ def get_daily_rem():
     else:
         return None
 
+############## Save Data to SQL ####################
+def account_set_up(update, context):
+    global chat_id
+    chat_id = update.effective_chat.id
+    context.bot.send_message(chat_id=update.effective_chat.id, text = "Hi, I am RemNote Telegram Bot")
+    context.bot.send_message(chat_id=update.effective_chat.id, text = "My main purpose is to be a sort of webclipper")
+    context.bot.send_message(chat_id=update.effective_chat.id, text = "You can send me notes or weblinks, followed by tags and references and I will try by best to save them to the RemNote")
+    context.bot.send_message(chat_id=update.effective_chat.id, text = "But let's make some initial configuration at first")
+    context.bot.send_message(chat_id=update.effective_chat.id, text = "Please send me API key")
+    return THIRD
 
+def api_set(update, context):
+    global api
+    api =  update.message.text
+    context.bot.send_message(chat_id=update.effective_chat.id, text = "Great, now please send me your UserId")
+    return FOURTH
+
+def user_id_set(update, context):
+    global userid, api, chat_id, df, engine
+    userid =  update.message.text
+    context.bot.send_message(chat_id=update.effective_chat.id, text = "Fantastic!")
+    columns = list(df.columns) 
+    if chat_id not in list(df[columns[0]]):
+        df = df.append(pd.DataFrame({
+                columns[0]:[chat_id],
+                columns[1]:[api],
+                columns[2]:[userid]
+                }))
+    context.bot.send_message(chat_id=update.effective_chat.id, text = str(df))
+    df.to_sql('ids', engine, if_exists='replace', index=False)
+    context.bot.send_message(chat_id=update.effective_chat.id, text = "All set up!")
+    return FIRST
+############## Saving to RemNote #####################
 
 # Start the conversation 
 
@@ -101,7 +139,18 @@ def start_doc(update, context):
 
 def start(update, context):
     """Echo the user message."""
-    global LINK, DOCUMENT, NOTE, PARENT, URL
+    global LINK, DOCUMENT, NOTE, PARENT, URL, df, REMNOT_API, USER_ID
+    columns = list(df.columns)
+    context.bot.send_message(chat_id=update.effective_chat.id, text = str(update.effective_chat.id))
+    context.bot.send_message(chat_id=update.effective_chat.id, text = list(df[columns[0]]))
+    if str(update.effective_chat.id )in list(df[columns[0]]):
+        REMNOT_API = str(list(df[df[columns[0]] ==str(update.effective_chat.id) ][columns[1]])[0])
+        USER_ID = str(list(df[df[columns[0]] ==str(update.effective_chat.id) ][columns[2]])[0])
+        context.bot.send_message(chat_id=update.effective_chat.id, text = str(REMNOT_API))
+        context.bot.send_message(chat_id=update.effective_chat.id, text = str(USER_ID))
+    else:
+        context.bot.send_message(chat_id=update.effective_chat.id, text = "Please make an intial setup first with /start command")
+        return ConversationHandler.END
     DOCUMENT = False
     NOTE = update.message.text
     try:
@@ -248,10 +297,23 @@ def main():
         },
         fallbacks=[CommandHandler('start', start)],
     )
+    conv_handler2 = ConversationHandler(
+        entry_points=[
+            CommandHandler("start", account_set_up)
+            ],
+        states={
+            THIRD: [
+                MessageHandler(Filters.text, api_set),
+            ],
+            FOURTH: [
+                MessageHandler(Filters.text, user_id_set),            ],
+        },
+        fallbacks=[CommandHandler("start", account_set_up)],
+    )
     dp.add_handler(CommandHandler("stop", stop))
+    dp.add_handler(conv_handler2)
     dp.add_handler(conv_handler)
     dp.add_error_handler(error)
-#    updater.start_polling()
     updater.start_webhook(listen="0.0.0.0",
                             port=int(PORT),
                             url_path=TOKEN)
