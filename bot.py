@@ -63,7 +63,7 @@ def send_note(text, parent=None, link=False, doc=None):
         par['source'] = URL
         reqs = requests.get(URL) 
         soup = BeautifulSoup(reqs.text, 'html.parser') 
-        par['text'] =  soup.find_all('title')[0].get_text()
+        par['text'] =  str(soup.find_all('title')[0].get_text()) + '#[['+today+']]'
     elif DOCUMENT==True:
         par['source'] = open(f"{MEDIA_ID}.pdf", 'rb')
         par['isDocument'] = True
