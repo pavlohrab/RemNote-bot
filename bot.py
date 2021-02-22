@@ -12,7 +12,7 @@ import psycopg2
 
 
 # USER defined variables
-TOKEN = '1542634306:AAH5hl7B-FkMlCNNsouZw1ve1H5kSt1VKYE'
+TOKEN = ''
 REMNOT_API= ''
 USER_ID = ''
 HEROKU_NAME = 'https://limitless-peak-12878.herokuapp.com/'
