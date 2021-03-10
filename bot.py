@@ -21,7 +21,7 @@ NOTE_ID = None
 PARENT = None
 NOTE = None
 MEDIA_ID = None
-FIRST, SECOND = range(2)
+FIRST, SECOND, THIRD, FOURTH = range(4)
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -59,7 +59,10 @@ def send_note(text, parent=None, link=False, doc=None):
         par['source'] = URL
         reqs = requests.get(URL) 
         soup = BeautifulSoup(reqs.text, 'html.parser') 
-        par['text'] =  soup.find_all('title')[0].get_text()
+        try:
+            par['text'] =  str(soup.find_all('title')[0].get_text()) + '#[['+today+']]'
+        except:
+            par['text'] = str(URL)
     elif DOCUMENT==True:
         par['source'] = open(f"{MEDIA_ID}.pdf", 'rb')
         par['isDocument'] = True
@@ -68,17 +71,40 @@ def send_note(text, parent=None, link=False, doc=None):
     return created_rem.json()['remId']
 
 def get_daily_rem():
-    global REMNOT_API, USER_ID
+    global REMNOT_API, USER_ID, today
     url_get_by_name = "https://api.remnote.io/api/v0/get_by_name"
     search={
-    "apiKey": REMNOT_API,
-    "userId":USER_ID,
-    "name":datetime.date.today().strftime('%d/%m/%Y')}
+        "apiKey": REMNOT_API,
+        "userId":USER_ID,
+        "name":datetime.date.today().strftime('%d/%m/%Y'),
+    }
     res = requests.post(url_get_by_name, data=search)
     if res.json()["found"] == True:
         return res.json()["_id"]
     else:
-        return None
+        url_get_by_name = "https://api.remnote.io/api/v0/get_by_name"
+        search={ "apiKey": REMNOT_API, 
+                "userId":USER_ID, 
+                "name":'Daily Documents'} 
+        res = requests.post(url_get_by_name, data=search) 
+        url="https://api.remnote.io/api/v0/create" 
+        par={ "apiKey":REMNOT_API, 
+                    "userId":USER_ID, 
+                    "text": "Temporary" + " #[[" +  str(today) + "]]", 
+                    "positionAmongstSiblings" : 0, 
+                    "isDocument" : True, 
+                    "parentId":res.json()["_id"]
+                    } 
+        created_rem = requests.post(url, data=par) 
+        delete = { "apiKey": REMNOT_API, 
+                        "userId":USER_ID, 
+                        "remId" : created_rem.json()['remId'] 
+                        } 
+        delete_url = "https://api.remnote.io/api/v0/delete" 
+        requests.post(delete_url, data=delete) 
+        search['name'] = datetime.date.today().strftime('%d/%m/%Y') 
+        res = requests.post(url_get_by_name, data=search)
+        return res.json()["_id"]
 
 
 
@@ -151,7 +177,7 @@ def search_parent():
 # First menu hangling
 def daily_docs(update, context):
     """Echo the user message."""
-    global LINK, DOCUMENT, NOTE, NOTE_ID    
+    global LINK, DOCUMENT, NOTE, NOTE_ID  
     query = update.callback_query
     query.answer()
     NOTE_ID = send_note(text=NOTE, link=LINK)
@@ -227,7 +253,7 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 def main():
-    global PARENT
+    global PARENT, TOKEN, HEROKU_NAME, PORT
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
     conv_handler = ConversationHandler(
