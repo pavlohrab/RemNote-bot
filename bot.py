@@ -24,7 +24,7 @@ NOTE_ID = None
 PARENT = None
 NOTE = None
 MEDIA_ID = None
-FIRST, SECOND, THIRD, FOURTH = range(4)
+FIRST, SECOND, THIRD, FOURTH, FIFTH = range(5)
 
 
 # Enable logging
@@ -232,6 +232,58 @@ def start_photo(update, context):
             reply_markup=main_menu_keyboard())
         return FIRST
 
+def start_voice(update, context):
+    global PARENT, LINK, DOCUMENT, NOTE
+    LINK = False
+    DOCUMENT = False
+    media = context.bot.get_file(update.message.voice)
+    NOTE = "&[true](" + str(media.file_path) +")"
+    if PARENT != None:
+        send_note(text=NOTE, parent=PARENT)
+    else:
+        update.message.reply_text("Need some extra details...",
+            reply_markup=main_menu_keyboard())
+        return FIRST
+
+def start_audio(update, context):
+    global PARENT, LINK, DOCUMENT, NOTE
+    LINK = False
+    DOCUMENT = False
+    media = context.bot.get_file(update.message.audio)
+    NOTE = "&[true](" + str(media.file_path) +")"
+    if PARENT != None:
+        send_note(text=NOTE, parent=PARENT)
+    else:
+        update.message.reply_text("Need some extra details...",
+            reply_markup=main_menu_keyboard())
+        return FIRST
+
+def start_video(update, context):
+    global PARENT, LINK, DOCUMENT, NOTE
+    LINK = False
+    DOCUMENT = False
+    media = context.bot.get_file(update.message.video)
+    NOTE = "&[anything but true](" + str(media.file_path) +")"
+    if PARENT != None:
+        send_note(text=NOTE, parent=PARENT)
+    else:
+        update.message.reply_text("Need some extra details...",
+            reply_markup=main_menu_keyboard())
+        return FIRST
+
+def start_video_note(update, context):
+    global PARENT, LINK, DOCUMENT, NOTE
+    LINK = False
+    DOCUMENT = False
+    media = context.bot.get_file(update.message.video_note)
+    NOTE = "&[anything but true](" + str(media.file_path) +")"
+    if PARENT != None:
+        send_note(text=NOTE, parent=PARENT)
+    else:
+        update.message.reply_text("Need some extra details...",
+            reply_markup=main_menu_keyboard())
+        return FIRST
+
 def search_parent():
     global HOME_DIR, REMNOT_API, USER_ID
     name = HOME_DIR
@@ -257,24 +309,36 @@ def search_parent():
 # First menu hangling
 def daily_docs(update, context):
     """Echo the user message."""
-    global LINK, DOCUMENT, NOTE, NOTE_ID    
+    global LINK, DOCUMENT, NOTE, NOTE_ID, SEPARATE
+    SEPARATE = False
     query = update.callback_query
     query.answer()
-    NOTE_ID = send_note(text=NOTE, link=LINK)
-    query.edit_message_text(text = first_menu_message(), 
-                        reply_markup=first_menu_keyboard())
-    return SECOND
+    if LINK == True:
+        query.edit_message_text(text = fifth_menu_message(), 
+                            reply_markup=fifth_menu_keyboard())
+        return FIFTH
+    else:
+        NOTE_ID = send_note(text=NOTE, link=LINK)
+        query.edit_message_text(text = first_menu_message(), 
+                            reply_markup=first_menu_keyboard())
+        return SECOND
 
 
 def separate_dir(update, context):
     """Echo the user message."""
-    global LINK, DOCUMENT, NOTE, NOTE_ID, today
+    global LINK, DOCUMENT, NOTE, NOTE_ID, today, SEPARATE
+    SEPARATE = True
     query = update.callback_query
     query.answer()
-    NOTE_ID = send_note(text=NOTE + "#[["+today+"]]", link=LINK, parent=search_parent())
-    query.edit_message_text(text = first_menu_message(),
-                         reply_markup=first_menu_keyboard())
-    return SECOND
+    if LINK == True:
+        query.edit_message_text(text = fifth_menu_message(), 
+                            reply_markup=fifth_menu_keyboard())
+        return FIFTH
+    else:
+        NOTE_ID = send_note(text=NOTE + "#[["+today+"]]", link=LINK, parent=search_parent())
+        query.edit_message_text(text = first_menu_message(),
+                            reply_markup=first_menu_keyboard())
+        return SECOND
 
 
 # Second menu hangling
@@ -293,6 +357,32 @@ def stop_conv(update, context):
     query.answer()
     query.edit_message_text("Sure.")
     return ConversationHandler.END
+
+# Fifth menu
+def video_embed(update, context):
+    global  NOTE, NOTE_ID, SEPARATE, URL
+    query = update.callback_query
+    query.answer()
+    NOTE = "&[anything but true](" + str(URL) +")"
+    if SEPARATE == True:
+        NOTE_ID = send_note(text=NOTE + "#[["+today+"]]", link=None, parent=search_parent())
+    else:
+        NOTE_ID = send_note(text=NOTE, link=None)
+    query.edit_message_text(text = first_menu_message(),
+                            reply_markup=first_menu_keyboard())
+    return SECOND
+
+def not_video_embed(update, context):
+    global  NOTE, LINK
+    query = update.callback_query
+    query.answer()
+    if SEPARATE == True:
+        NOTE_ID = send_note(text=NOTE + "#[["+today+"]]", link=LINK, parent=search_parent())
+    else:
+        NOTE_ID = send_note(text=NOTE, link=LINK)
+    query.edit_message_text(text = first_menu_message(),
+                            reply_markup=first_menu_keyboard())
+    return SECOND
 
 # Stop notes adding
 def stop(update, context):
@@ -321,11 +411,19 @@ def first_menu_keyboard():
                 [InlineKeyboardButton('No', callback_data='stop')]]
     return InlineKeyboardMarkup(keyboard)
 
+def fifth_menu_keyboard():
+    keyboard = [[InlineKeyboardButton('Yes', callback_data='video_embed')],
+                [InlineKeyboardButton('No', callback_data='not_video_embed')]]
+    return InlineKeyboardMarkup(keyboard)
+
 def main_menu_message():
   return 'Where to save?:'
 
 def first_menu_message():
   return 'Add some additional notes? (inside created rem):'
+
+def fifth_menu_message():
+  return 'Link detected. Are you trying to embed a video?'
 
 # Error messages
 def error(update, context):
@@ -338,6 +436,10 @@ def main():
     dp = updater.dispatcher
     conv_handler = ConversationHandler(
         entry_points=[
+            MessageHandler(Filters.voice, start_voice),
+            MessageHandler(Filters.audio, start_audio),
+            MessageHandler(Filters.video, start_video),
+            MessageHandler(Filters.video_note, start_video_note),
             MessageHandler(Filters.text, start), 
             MessageHandler(Filters.document, start_doc),
             MessageHandler(Filters.photo, start_photo)
@@ -351,6 +453,10 @@ def main():
             SECOND: [
                 CallbackQueryHandler(update_rem, pattern="update_rem"),
                 CallbackQueryHandler(stop_conv, pattern="stop"),
+            ],
+            FIFTH: [
+                CallbackQueryHandler(video_embed, pattern="video_embed"),
+                CallbackQueryHandler(not_video_embed, pattern="not_video_embed"),
             ],
         },
         fallbacks=[CommandHandler('start', start)],
