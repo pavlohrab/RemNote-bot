@@ -48,7 +48,7 @@ This version is prefered, as you would have all the control behind your data.
 The general version of a bot depends on postgresql database on heroku. After the start you should just provide API key and UserID as a messages to a bot. For how to get API key and User Id please see above guide (step 6 and 7.3). There is a limit of users in one telegram bot (10000 in a free Heroku tier), therefore below is a list of maintained bots 
 
 List of telegram bots:
-1. @RemNoteBot - not full. Code is available on `remnote_postgres_1` branch of this repo
+1. @RemNoteBot - not full. Just find the bot and start the messaging! (Code is available on `remnote_postgres_1` branch of this repo)
 
 
 # Usage
