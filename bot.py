@@ -16,7 +16,7 @@ HEROKU_NAME = ''
 HOME_DIR = 'Saved Telegram'
 
 # Some global variables
-PORT = int(os.environ.get('PORT', 5000))
+PORT = os.environ.get('PORT')
 NOTE_ID = None
 PARENT = None
 NOTE = None
