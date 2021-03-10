@@ -78,12 +78,18 @@ def get_daily_rem():
     global REMNOT_API, USER_ID, today
     url_get_by_name = "https://api.remnote.io/api/v0/get_by_name"
     search={
-    "apiKey": REMNOT_API,
-    "userId":USER_ID,
-    "name":datetime.date.today().strftime('%d/%m/%Y')}
+        "apiKey": REMNOT_API,
+        "userId":USER_ID,
+        "name":datetime.date.today().strftime('%d/%m/%Y'),
+    }
     res = requests.post(url_get_by_name, data=search)
     if res.json()["found"] == True:
         return res.json()["_id"]
+    elif res.json()["found"] == False:
+        search['name'] = today
+        res = requests.post(url_get_by_name, data=search)
+        if res.json()["found"] == True:
+            return res.json()["_id"]
     else:
         url_get_by_name = "https://api.remnote.io/api/v0/get_by_name"
         search={ "apiKey": REMNOT_API, 
@@ -107,7 +113,18 @@ def get_daily_rem():
         requests.post(delete_url, data=delete) 
         search['name'] = datetime.date.today().strftime('%d/%m/%Y') 
         res = requests.post(url_get_by_name, data=search)
-        return res.json()["_id"]
+        if res.json()["found"] == False:
+            search['name'] = 'Daily Documents'
+            res = requests.post(url_get_by_name, data=search)
+            par['parentId'] = res.json()["_id"]
+            created_rem = requests.post(url, data=par)
+            delete['remId'] =  created_rem.json()['remId']
+            requests.post(delete_url, data=delete)
+            search['name'] = today
+            res = requests.post(url_get_by_name, data=search)
+            return res.json()["_id"]
+        else:
+            return res.json()["_id"]
 
 ############## Save Data to SQL ####################
 def account_set_up(update, context):
