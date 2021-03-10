@@ -23,7 +23,7 @@ The example bot for testing can be found in telegram by username: `@RemNote_exam
 
 All the information, except Heroku app is already in the bot. The user should only whether configure the heroku account, or run the bot locally (preferred)
 
-The initially bot is intended to be run locally via terminal or command prompt with `python bot.py` command. Prior to run the one should install required libraries with pip (should be already in your system if Python is installed. If not, then please install python) `pip install bs4 telegram requests datetime` via terminal or command prompt.
+The initially bot is intended to be run locally via terminal or command prompt with `python bot.py` command. Prior to run the one should install required libraries with pip (should be already in your system if Python is installed. If not, then please install python) `pip install bs4 python-telegram-bot==12.7 requests datetime` via terminal or command prompt.
 
 If you would like to run the bot on HEROKU server, please use the following commenting pattern for the lines below
 ```python
