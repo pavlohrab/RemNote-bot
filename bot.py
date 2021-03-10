@@ -75,7 +75,7 @@ def send_note(text, parent=None, link=False, doc=None):
     return created_rem.json()['remId']
 
 def get_daily_rem():
-    global REMNOT_API, USER_ID
+    global REMNOT_API, USER_ID, today
     url_get_by_name = "https://api.remnote.io/api/v0/get_by_name"
     search={
     "apiKey": REMNOT_API,
@@ -303,7 +303,7 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 def main():
-    global PARENT
+    global PARENT, TOKEN, HEROKU_NAME, PORT
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
     conv_handler = ConversationHandler(
