@@ -7,9 +7,10 @@ The bot is intended to be run from [heroku](https://heroku.com) on a free tier. 
 # Features
 1. **Send text notes** directly to the daily page, or in a separate folder, still referencing today's page
 2. **Share websites** to the remnote (the same as text notes). If a link is found within the text, then it becomes a source, and page title becomes the rem text
-3. **Add** any subsequent **notes to the created** rem (tight after the creatin). All the notes will put inside created rem. 
+3. **Add** any subsequent **notes to the created** rem (right after the creation). All the notes will put inside created rem. 
 4. **Tags** are only supported if they are one word ( underscore delimiter can be also used). In this case they can be added via ##example_tag while making a note.
 5. **References** are encapsulated in [[example reference]]. They can consist of several words. 
+6. **Send photos** in the same way as text notes! 
 
 **For example**: The one can share a link to a bot and follow it with several text messages, describing the ideas described in the website. Maybe "##Idea" can be tagged or [[example project]] referenced.
 
