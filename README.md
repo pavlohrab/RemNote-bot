@@ -16,6 +16,7 @@ The bot is intended to be run from [heroku](https://heroku.com) on a free tier. 
 3. **Add** any subsequent **notes to the created** rem (right after the creation). All the notes will put inside created rem. 
 4. **Tags** are only supported if they are one word ( underscore delimiter can be also used). In this case they can be added via ##example_tag while making a note.
 5. **References** are encapsulated in [[example reference]]. They can consist of several words. 
+6. **Send photos** in the same way as text notes! 
 
 **For example**: The one can share a link to a bot and follow it with several text messages, describing the ideas described in the website. Maybe "##Idea" can be tagged or [[example project]] referenced.
 
