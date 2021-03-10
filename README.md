@@ -8,11 +8,15 @@ The bot is intended to be run from [heroku](https://heroku.com) on a free tier. 
 1. **Send text notes** directly to the daily page, or in a separate folder, still referencing today's page
 2. **Share websites** to the remnote (the same as text notes). If a link is found within the text, then it becomes a source, and page title becomes the rem text
 3. **Add** any subsequent **notes to the created** rem (right after the creation). All the notes will put inside created rem. 
-4. **Tags** are only supported if they are one word ( underscore delimiter can be also used). In this case they can be added via ##example_tag while making a note.
+4. **Tags** are only supported if they are one word ( underscore delimiter can be also used). In this case they can be added via ##example_tag while making a note. **You can add multi-word tags via #[[example tag]]**
 5. **References** are encapsulated in [[example reference]]. They can consist of several words. 
 6. **Send photos** in the same way as text notes! 
+7. **Embed audios or voice messages** in the daily notes or in a separate folder
+8. **Embed videos** by sending bideo file, or a link. If you are sending a link the additional question will be asked if this link is a video link (for example to youtube video) 
+9. **Make your text stands**! You can use [this](https://forum.remnote.io/t/ability-to-create-all-content-via-api-and-remnote-flavored-markdown-paste-syntax/310) guide to make your tect **bold** or add some headers!
 
 **For example**: The one can share a link to a bot and follow it with several text messages, describing the ideas described in the website. Maybe "##Idea" can be tagged or [[example project]] referenced.
+
 
 # Installation
 
@@ -40,7 +44,8 @@ The bot is intended to be run from [heroku](https://heroku.com) on a free tier. 
 
 The only input, that is needed from the user, is a sent text message. Then the conversation dialogue via incline keyboard will begin:
 1. Firstly, the user can choose if to save note directly to the daily document, or save it separately
-2. Secondly, the user can add some following notes. You can add as many notes as you wish. Every message will be treated as separate rem. Links will not be extracted in this mode and would be treated as text. If you finished adding notes, then send the `/stop` command.
+2. If a link is provided, then the bot will ask you if you intended to embed a video (additional dialog)
+3. Secondly, the user can add some following notes. You can add as many notes as you wish. Every message will be treated as separate rem. Links will not be extracted in this mode and would be treated as text. If you finished adding notes, then send the `/stop` command.
 
 Everything regarding how to use tags and references is in the **Features** section. If any API changes will be made, then this bot will change and evolve (:
 
