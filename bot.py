@@ -202,6 +202,19 @@ def start(update, context):
             reply_markup=main_menu_keyboard())
         return FIRST
 
+def start_photo(update, context):
+    global PARENT, LINK, DOCUMENT, NOTE
+    LINK = False
+    DOCUMENT = False
+    media = context.bot.get_file(update.message.photo[-1])
+    NOTE = media.file_path
+    if PARENT != None:
+        send_note(text=NOTE, parent=PARENT)
+    else:
+        update.message.reply_text("Need some extra details...",
+            reply_markup=main_menu_keyboard())
+        return FIRST
+
 def search_parent():
     global HOME_DIR, REMNOT_API, USER_ID
     name = HOME_DIR
@@ -267,7 +280,7 @@ def stop_conv(update, context):
 # Stop notes adding
 def stop(update, context):
     """Echo the user message."""
-    global PARENT
+    global PARENT, DOCUMENT, LINK
     PARENT=None
     DOCUMENT = False
     LINK = False
@@ -309,7 +322,8 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[
             MessageHandler(Filters.text, start), 
-            MessageHandler(Filters.document, start_doc)
+            MessageHandler(Filters.document, start_doc),
+            MessageHandler(Filters.photo, start_photo)
             ],
         states={
             FIRST: [
