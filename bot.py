@@ -43,7 +43,7 @@ def send_note(text, parent=None, link=False, doc=None):
     global REMNOT_API, USER_ID, DOCUMENT, MEDIA_ID, today, URL
     url_post="https://api.remnote.io/api/v0/create"
     parent_Id = parent
-    if parent == None:
+    if parent_Id == None:
         parent_Id = get_daily_rem()
     if parent_Id == None:
         parent_Id = search_parent()
@@ -152,6 +152,19 @@ def start(update, context):
             reply_markup=main_menu_keyboard())
         return FIRST
 
+def start_photo(update, context):
+    global PARENT, LINK, DOCUMENT, NOTE
+    LINK = False
+    DOCUMENT = False
+    media = context.bot.get_file(update.message.photo[-1])
+    NOTE = media.file_path
+    if PARENT != None:
+        send_note(text=NOTE, parent=PARENT)
+    else:
+        update.message.reply_text("Need some extra details...",
+            reply_markup=main_menu_keyboard())
+        return FIRST
+
 def search_parent():
     global HOME_DIR, REMNOT_API, USER_ID
     name = HOME_DIR
@@ -199,7 +212,6 @@ def separate_dir(update, context):
 
 # Second menu hangling
 def update_rem(update, context):
-    """Echo the user message."""
     global PARENT, NOTE_ID
     PARENT = NOTE_ID
     query = update.callback_query
@@ -208,7 +220,6 @@ def update_rem(update, context):
     return ConversationHandler.END
 
 def stop_conv(update, context):
-    """Echo the user message."""
     query = update.callback_query
     query.answer()
     query.edit_message_text("Sure.")
@@ -216,8 +227,7 @@ def stop_conv(update, context):
 
 # Stop notes adding
 def stop(update, context):
-    """Echo the user message."""
-    global PARENT
+    global PARENT, DOCUMENT, LINK
     PARENT=None
     DOCUMENT = False
     LINK = False
@@ -259,7 +269,8 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[
             MessageHandler(Filters.text, start), 
-            MessageHandler(Filters.document, start_doc)
+            MessageHandler(Filters.document, start_doc),
+            MessageHandler(Filters.photo, start_photo)
             ],
         states={
             FIRST: [
